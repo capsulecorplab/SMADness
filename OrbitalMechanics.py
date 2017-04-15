@@ -25,6 +25,7 @@ B_e = 3e-5	# Earth's magnetic field (T)
 # Sun
 M_s = 1.989e30	# Mass of Sun (kg)
 R_s = 695700e3	# Radius of Sun (m)
+phi_solar = 1.3608e3	# Solar flux constant at ~1AU
 
 # Moon
 M_m = 7.34e22	# Mass of moon (kg)
