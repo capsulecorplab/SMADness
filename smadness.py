@@ -1,60 +1,75 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math
 from collections import namedtuple
 #from units import Units
 
+# Gravitational Constant (universal) (m^2/(kg*s^2))
 G = 6.674e-11
 
-'''
-# Demois
-M = 1.48e15
-R = 6.2e3
+# Radius of earth's Orbit or 1 AU (m)
+AU = 149.6e9
 
-# Pluto
-M = 1.3e22
-R = 1200e3
-'''
+"""
+class sun:
+    def __init__(self, m, r_body):
+        # Mass of Sun (kg)
+        self.m = m
+        # Radius of sun (m)
+        self.r_body = r_body
 
-# Earth
-M_e = 5.972e24	# Mass of Earth (kg)
-R_e = 6371e3	# Radius of Earth (m)
-AU = 149.6e9	# Radius of earth's Orbit or 1AU (m)
-B_e = 3e-5	# Earth's magnetic field (T)
+class moon:
+    def __init__(self, m, r_body, r_orbit):
+        # Mass of moon (kg)
+        self.m = m
+        # Radius of moon (m)
+        self.r_body = r_body
+        # Semi-major axis of moon's orbit about planet (m)
+        self.r_orbit = r_orbit
+
+class planet:
+    def __init__(self, m, r_body, r_orbit, b, phi_solar):
+        # Mass of planet (kg)
+        self.m = m
+        # Radius of planet (m)
+        self.r_body = r_body
+        # Semi-major axis of planet's orbit about sun (m)
+        self.r_orbit = r_orbit
+        # Magnetic field (T)
+        self.b = b
+        # Solar flux constant at ~1AU (W/m^2)
+        self.phi_solar = phi_solar
 
 # Sun
-M_s = 1.989e30	# Mass of Sun (kg)
-R_s = 695700e3	# Radius of Sun (m)
-phi_solar = 1.3608e3	# Solar flux constant at ~1AU
+sun = sun(m=1.989e30, r_body=695700e3)
 
+# Earth
+earth = planet(m=5.972e24, r_body=6371e3, r_orbit=1*AU, b=3e-5, phi_solar=1.3608e3)
 # Moon
-M_m = 7.34e22	# Mass of moon (kg)
-R_m = 1.737e6	# Radius of moon (m)
+moon = moon(m=7.34e22, r_body=1.737e6, r_orbit=384748e3)
+
+# Pluto
+pluto = planet(m=1.48e15, r_body=6.2e3, r_orbit=39.52*AU, phi_solar=0.9)
 
 # Jupiter
-M_J = 1.8987e27	# Mass of Jupiter
-R_J = 5.204*AU	# Radius of Jupiter's orbit
-r_J = 69911e3	# Mean radius of Jupiter
+jupiter = planet(m=1.8987e27, r_body=69911e3, r_orbit=5.204*AU)
+"""
 
-# Gravitational Constant
+# Gravitational Constant (local)
 def g(G,M,R):
-	return G*M/R**2
+    return G*M/R**2
 
 # Gravity well
 def phi_gw(G,M,g,R):
-	return G*M/(g*R)
+    return G*M/(g*R)
 
 # Escape Velocity (m/s)
 def v_esc(G,M,R):
 	return math.sqrt(2*G*M/R)
 
-
 # Distance from Earth to Spacecraft
 def l_e(d_s_e,M_s,M_e):
 	return d_s_e/(1 + math.sqrt(M_s/M_e))
-
-#hp = 250e3
-#ha = 800e3
 
 # Semimajor axis
 def a(hp, ha):
@@ -65,23 +80,8 @@ def T(a,G,M):
 	return 2*math.pi*math.sqrt(a**3/(G*M))
 
 # Semimajor axis (given T) (m)
-#T = 86164
 def a_T(G,M,T):
 	return (G*M*(T/(2*math.pi))**2)**(1./3)
-
-#v = 7.76e3
-
-# periapsis | apoapsis
-#a = 228e6
-#e = 0.09336
-#ra = (e + 1)*a
-#rp = (1 - e)*a
-
-#e = .3
-#ra = 20000e3 + R
-#a = ra/(1 + e)
-#rp = (1 - e)*a
-#r = rp
 
 # Orbital Velocity (vis-viva equation) for elliptical trajectory
 def v(G,M,r,a):
@@ -92,19 +92,8 @@ def v_hyperbolic(G,M,r,a):
 	return math.sqrt(2*G*M/r + G*M/a)
 
 # Gravitational potential
-#V = G*M/R
-
-#R = 700
-#g = 140.15/R**2
-#g = v**2/R
-
-#a = R + 400e3
-
-#time since periapsis
-#E = 68.08*math.pi/180
-#n = math.sqrt(G*M/a**3)
-#t = (E-e*math.sin(E))/n
-#v = math.sqrt(2*G*M/r - G*M/a)
+def V(G,M,R):
+    return G*M/R
 
 # Homann Transfer, deltav1
 def deltav1_ht(G,M,r1,r2):
@@ -120,7 +109,7 @@ def deltav2_ht(G,M,r1,r2):
 def deltav_op(Vi,alpha):
 	return 2*Vi*math.sin(alpha/2)
 
-## Nodal Regression rate for LEO (in deg per mean solar day)
+# Nodal Regression rate for LEO (in deg per mean solar day)
 def omegap_degperday(i,a,e):
 	i = i*180/math.pi
 	a = a*1e-3
@@ -174,81 +163,5 @@ def U_tether(V,B,L):
 # Probability of Proper Functioning
 def R(Lambda,t):
 	return math.exp(-Lambda*t)
-
-#print (1 - U_tether(v(G,M_e,296e3+R_e,296e3+R_e), B_e, 20e3)*math.cos(30.*math.pi/180)/U_tether(v(G,M_e,296e3+R_e,296e3+R_e), B_e, 20e3))*100
-#print U_tether(v(G,M_e,296e3+R_e,296e3+R_e), B_e, 20e3)*math.cos(30.*math.pi/180)
-
-# HW 5.4.3
-#print R(20**-1,12)
-
-# HW 5.3.6
-#print v(G, M_e, 296e3+R_e, 296e3+R_e)
-#print U_tether(v(G,M_e,296e3+R_e,296e3+R_e), B_e, 20e3)
-
-# HW 5.2.8
-#print 2*t_b(math.pi/2,2,3.5,3.6/2,500)
-#print m_p(2,3.5,t_b(math.pi/2,2,3.5,3.6/2,500),9.81,190)*1000
-
-#mp = m_p(4050,11.50e3-7.78e3,9.81,320)
-#print mp/5
-
-#print deltav_brake(G,M_J,5.64e3,100000e3,100000e3)
-
-#print v_d(G,M_e,200e3,8.79e3)
-#print v_d(G,M_e,200e3,8.79e3)
-#print 0.5*v_d(G,M_e,200e3,38.58e3)**2
-#print V_Sd()
-#print v_d(G,M_e,0.924e9,17e3)
-
-#print deltav_rocket(9.81,311,280+56+10.45,10.45+3+20+53) + deltav_rocket(9.81,342,13+53.45,13.45)
-#print deltav_rocket(9.81,342,313+33.45,33.45)
-
-#wrong:print deltav_rocket(9.81,311,280+56+10,10+56) + deltav_rocket(9.81,342,56+10,10)
-#wrong:print deltav_rocket(9.81,342,23+313+10,10)
-
-#print V_Sd(37.4,37.4,27*math.pi/180)
-
-'''
-vinf = v_inf(G,M_e,1000e3+R_e,11e3)
-print vinf
-print v_hyperbolic(G,M_e,0.924e9,G*M_e/vinf**2)
-print v_d(G,M_e,1000e3+R_e,vinf)
-'''
-
-#r1 = 230e3 + R
-#r2 = 20000e3 + R
-
-#deltav1 = deltav1_ht(G,M,r1,r2)
-#deltav2 = deltav2_ht(G,M,r1,r2)
-#print deltav1
-#print deltav2
-
-'''
-T = 24.*60.*60.
-#print a_T(G,M,T) - R
-i = math.pi/2
-a = 350e3 + R
-e = 0.
-omega = 2*math.pi/T
-#J2 = 2*e/3 - R**3*omega**2/(3*G*M)
-J2 = -1.08262668e-3
-
-print R
-print i
-print J2
-print omega
-print omegap(R,a,e,J2,omega,i)
-print omegap(R,a,e,J2,omega,i)*T*180/math.pi
-print omegap_degperday(i,a,e)
-print 5.19671760308e-19*T*180/math.pi
-
-T = 365*24*60*60
-omega = 2.*math.pi/T
-print omega
-print r_e
-print G*M_s
-print G*M_e
-print G*M_m
-'''
 
 
